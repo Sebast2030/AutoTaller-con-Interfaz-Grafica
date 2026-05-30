@@ -63,7 +63,8 @@ Se abrira una ventana en Visual Studio Code, que es la ejucion del proyecto
 
 ## 📁 Repositorio
 
-https://github.com/Sebast2030/AutoTaller-con-Interfaz-Grafica.git
-hecho por: juan Sebastian Quintero
+
+- https://github.com/Sebast2030/AutoTaller-con-Interfaz-Grafica.git
+- Hecho por: Juan Sebastian Quintero
 
 ---
