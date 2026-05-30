@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoTaller Pro — Sistema de Gestión</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f11;
+    --surface: #18181c;
+    --surface2: #22222a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --accent: #e8a020;
+    --accent2: #f5c842;
+    --text: #f0efe8;
+    --muted: #888885;
+    --danger: #e05252;
+    --success: #4caf7d;
+    --info: #5b9bd5;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ─────────────────────────── */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 24px;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 10;
+  }
+  .sidebar-logo {
+    padding: 28px 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo .brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: -0.3px;
+  }
+  .sidebar-logo .sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+  .nav-section {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 20px 20px 8px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 0;
+    font-size: 14px;
+    color: var(--muted);
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active {
+    background: var(--surface2);
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 500;
+  }
+  .nav-icon { font-size: 16px; width: 18px; text-align: center; }
+
+  /* ── MAIN ────────────────────────────── */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    padding: 32px;
+    min-height: 100vh;
+  }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--text);
+  }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ── STATS CARDS ─────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    opacity: 0;
+  }
+  .stat-card.accent::before { opacity: 1; }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; margin-top: 6px; color: var(--text); }
+  .stat-value.green { color: var(--success); }
+  .stat-value.amber { color: var(--accent); }
+
+  /* ── BTN ─────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: #0f0f11; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); background: var(--surface2); }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(224,82,82,0.3); }
+  .btn-danger:hover { background: rgba(224,82,82,0.08); }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-success { background: transparent; color: var(--success); border: 1px solid rgba(76,175,125,0.3); }
+  .btn-success:hover { background: rgba(76,175,125,0.08); }
+
+  /* ── TABLA ───────────────────────────── */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    flex: 1;
+    max-width: 320px;
+  }
+  .search-box input {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    width: 100%;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  td { padding: 12px 16px; font-size: 13px; }
+  .td-actions { display: flex; gap: 6px; }
+
+  /* ── BADGES ──────────────────────────── */
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11px; font-weight: 500;
+  }
+  .badge-espera  { background: rgba(91,155,213,0.12); color: var(--info); }
+  .badge-revision { background: rgba(232,160,32,0.12); color: var(--accent); }
+  .badge-reparacion { background: rgba(224,82,82,0.12); color: var(--danger); }
+  .badge-listo   { background: rgba(76,175,125,0.12); color: var(--success); }
+  .badge-entregado { background: rgba(136,136,133,0.12); color: var(--muted); }
+  .badge-carro   { background: rgba(91,155,213,0.12); color: var(--info); }
+  .badge-moto    { background: rgba(232,160,32,0.12); color: var(--accent); }
+  .badge-camioneta { background: rgba(76,175,125,0.12); color: var(--success); }
+  .badge-abierta { background: rgba(232,160,32,0.12); color: var(--accent); }
+  .badge-cerrada { background: rgba(76,175,125,0.12); color: var(--success); }
+
+  /* ── MODAL ───────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+  }
+  .modal-close {
+    background: none; border: none; color: var(--muted);
+    font-size: 20px; cursor: pointer; padding: 4px; line-height: 1;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 20px 24px 24px; }
+
+  /* ── FORM ────────────────────────────── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.span2 { grid-column: span 2; }
+  label { font-size: 12px; color: var(--muted); font-weight: 500; }
+  input, select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  input.error, select.error { border-color: var(--danger); }
+  select option { background: var(--surface); }
+  textarea { resize: vertical; min-height: 72px; }
+  .form-footer {
+    display: flex; gap: 10px; justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  /* ── EXTRA FIELDS por tipo ───────────── */
+  .tipo-fields { display: none; }
+  .tipo-fields.visible { display: contents; }
+
+  /* ── TOAST ───────────────────────────── */
+  .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    font-size: 13px;
+    display: flex; align-items: center; gap: 10px;
+    animation: slideIn 0.2s ease;
+    max-width: 300px;
+  }
+  .toast.ok  { border-left: 3px solid var(--success); }
+  .toast.err { border-left: 3px solid var(--danger); }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* ── EMPTY STATE ─────────────────────── */
+  .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-text { font-size: 14px; }
+
+  /* ── DETAIL VIEW ─────────────────────── */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .detail-item label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .detail-item .val { font-size: 14px; margin-top: 2px; }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 16px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">⚙ AutoTaller</div>
+    <div class="sub">Sistema de Gestión</div>
+  </div>
+  <div class="nav-section">Menú</div>
+  <div class="nav-item active" data-page="dashboard">
+    <span class="nav-icon">▦</span> Dashboard
+  </div>
+  <div class="nav-item" data-page="vehiculos">
+    <span class="nav-icon">🚗</span> Vehículos
+  </div>
+  <div class="nav-item" data-page="ordenes">
+    <span class="nav-icon">📋</span> Órdenes de Servicio
+  </div>
+  <div class="nav-item" data-page="cola">
+    <span class="nav-icon">⏳</span> Cola de Espera
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <section class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Vista general del taller</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card accent">
+        <div class="stat-label">Total vehículos</div>
+        <div class="stat-value amber" id="st-vehiculos">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Órdenes activas</div>
+        <div class="stat-value" id="st-ordenes">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">En cola de espera</div>
+        <div class="stat-value" id="st-cola">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ingresos cerrados</div>
+        <div class="stat-value green" id="st-ingresos">—</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <!-- últimos vehículos -->
+      <div class="table-card">
+        <div class="table-toolbar" style="padding:14px 18px;">
+          <span style="font-weight:600;font-size:14px;">Últimos vehículos</span>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Placa</th><th>Tipo</th><th>Propietario</th><th>Estado</th>
+          </tr></thead>
+          <tbody id="dash-vehiculos-tbody"></tbody>
+        </table>
+      </div>
+      <!-- últimas órdenes -->
+      <div class="table-card">
+        <div class="table-toolbar" style="padding:14px 18px;">
+          <span style="font-weight:600;font-size:14px;">Últimas órdenes</span>
+        </div>
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Placa</th><th>Mecánico</th><th>Estado</th>
+          </tr></thead>
+          <tbody id="dash-ordenes-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- VEHÍCULOS -->
+  <section class="page" id="page-vehiculos">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Vehículos</div>
+        <div class="page-sub">Registro, consulta y gestión de vehículos</div>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('modal-vehiculo')">
+        + Registrar vehículo
+      </button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="search-box">
+          <span style="color:var(--muted)">🔍</span>
+          <input type="text" id="search-vehiculos" placeholder="Buscar por placa, marca, propietario…" oninput="renderVehiculos()">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <select id="filter-tipo" onchange="renderVehiculos()" style="width:auto;padding:8px 12px;font-size:13px;">
+            <option value="">Todos los tipos</option>
+            <option>Carro</option><option>Moto</option><option>Camioneta</option>
+          </select>
+          <select id="filter-estado" onchange="renderVehiculos()" style="width:auto;padding:8px 12px;font-size:13px;">
+            <option value="">Todos los estados</option>
+            <option>EN_ESPERA</option><option>EN_REVISION</option>
+            <option>EN_REPARACION</option><option>LISTO</option><option>ENTREGADO</option>
+          </select>
+        </div>
+      </div>
+      <table>
+        <thead><tr>
+          <th>Placa</th><th>Tipo</th><th>Marca / Modelo</th><th>Año</th>
+          <th>Propietario</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
+        </tr></thead>
+        <tbody id="vehiculos-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ÓRDENES -->
+  <section class="page" id="page-ordenes">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Órdenes de Servicio</div>
+        <div class="page-sub">CRUD completo de órdenes de trabajo</div>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('modal-orden')">
+        + Nueva orden
+      </button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="search-box">
+          <span style="color:var(--muted)">🔍</span>
+          <input type="text" id="search-ordenes" placeholder="Buscar por ID, placa, mecánico…" oninput="renderOrdenes()">
+        </div>
+      </div>
+      <table>
+        <thead><tr>
+          <th>ID Orden</th><th>Placa</th><th>Descripción</th>
+          <th>Mecánico</th><th>Costo</th><th>Estado</th><th>Acciones</th>
+        </tr></thead>
+        <tbody id="ordenes-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- COLA DE ESPERA -->
+  <section class="page" id="page-cola">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Cola de Espera</div>
+        <div class="page-sub">Vehículos aguardando atención (FIFO — Queue)</div>
+      </div>
+    </div>
+    <div id="cola-container" style="display:flex;flex-direction:column;gap:12px;max-width:680px;"></div>
+  </section>
+
+</main>
+
+<!-- ═══ MODALES ════════════════════════════════════════════ -->
+
+<!-- Modal: Registrar / Editar Vehículo -->
+<div class="modal-overlay" id="modal-vehiculo">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-vehiculo-title">Registrar vehículo</div>
+      <button class="modal-close" onclick="closeModal('modal-vehiculo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Tipo de vehículo *</label>
+          <select id="v-tipo" onchange="toggleTipoFields()">
+            <option value="carro">Carro</option>
+            <option value="moto">Moto</option>
+            <option value="camioneta">Camioneta</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="lbl-placa">Placa * (formato Colombiano)</label>
+          <input type="text" id="v-placa" placeholder="ABC123 o ABC12A" maxlength="6">
+        </div>
+        <div class="form-group">
+          <label>Marca *</label>
+          <input type="text" id="v-marca" placeholder="Toyota, Chevrolet…">
+        </div>
+        <div class="form-group">
+          <label>Modelo *</label>
+          <input type="text" id="v-modelo" placeholder="Corolla, Aveo…">
+        </div>
+        <div class="form-group">
+          <label>Año *</label>
+          <input type="number" id="v-anio" placeholder="2022" min="1950" max="2026">
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <input type="text" id="v-color" placeholder="Blanco, Negro…">
+        </div>
+        <div class="form-group">
+          <label>Propietario *</label>
+          <input type="text" id="v-propietario" placeholder="Nombre completo">
+        </div>
+        <div class="form-group">
+          <label>Teléfono *</label>
+          <input type="text" id="v-telefono" placeholder="3001234567">
+        </div>
+
+        <!-- Campos: Carro -->
+        <div class="form-group tipo-fields carro-fields visible" id="cf-puertas">
+          <label>Número de puertas</label>
+          <select id="v-puertas">
+            <option value="2">2</option><option value="4" selected>4</option>
+          </select>
+        </div>
+        <div class="form-group tipo-fields carro-fields visible" id="cf-transmision">
+          <label>Transmisión</label>
+          <select id="v-transmision">
+            <option>MANUAL</option><option>AUTOMATICA</option>
+          </select>
+        </div>
+
+        <!-- Campos: Moto -->
+        <div class="form-group tipo-fields moto-fields" id="cf-cilindraje">
+          <label>Cilindraje (cc)</label>
+          <input type="number" id="v-cilindraje" placeholder="125" min="50" max="2000">
+        </div>
+        <div class="form-group tipo-fields moto-fields" id="cf-tipomoto">
+          <label>Tipo de moto</label>
+          <select id="v-tipomoto">
+            <option>SCOOTER</option><option>DEPORTIVA</option>
+            <option>TODOTERRENO</option><option>CLASICA</option>
+          </select>
+        </div>
+
+        <!-- Campos: Camioneta -->
+        <div class="form-group tipo-fields camioneta-fields" id="cf-carga">
+          <label>Capacidad de carga (ton)</label>
+          <input type="number" id="v-carga" placeholder="1.0" step="0.5">
+        </div>
+        <div class="form-group tipo-fields camioneta-fields" id="cf-traccion">
+          <label>Tracción 4x4</label>
+          <select id="v-traccion">
+            <option value="false">No</option><option value="true">Sí</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-vehiculo')">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarVehiculo()">Guardar vehículo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar estado vehículo -->
+<div class="modal-overlay" id="modal-edit-vehiculo">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Actualizar vehículo</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-vehiculo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ev-placa">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Propietario</label>
+          <input type="text" id="ev-propietario">
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" id="ev-telefono">
+        </div>
+        <div class="form-group span2">
+          <label>Estado</label>
+          <select id="ev-estado">
+            <option>EN_ESPERA</option><option>EN_REVISION</option>
+            <option>EN_REPARACION</option><option>LISTO</option><option>ENTREGADO</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-edit-vehiculo')">Cancelar</button>
+        <button class="btn btn-primary" onclick="actualizarVehiculo()">Actualizar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva Orden -->
+<div class="modal-overlay" id="modal-orden">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nueva orden de servicio</div>
+      <button class="modal-close" onclick="closeModal('modal-orden')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Placa del vehículo *</label>
+          <input type="text" id="o-placa" placeholder="ABC123" maxlength="6">
+        </div>
+        <div class="form-group">
+          <label>Mecánico asignado *</label>
+          <input type="text" id="o-mecanico" placeholder="Nombre del mecánico">
+        </div>
+        <div class="form-group span2">
+          <label>Descripción del problema *</label>
+          <textarea id="o-problema" placeholder="Describa el problema reportado…"></textarea>
+        </div>
+        <div class="form-group span2">
+          <label>Servicios (nombre:costo separados por coma)</label>
+          <input type="text" id="o-servicios" placeholder="Cambio aceite:45000, Filtro aire:25000">
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-orden')">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarOrden()">Crear orden</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ═══ ESTADO ════════════════════════════════════════════════════
+let vehiculos = [];
+let ordenes   = [];
+
+// ═══ API (usa datos locales — compatible con servidor Java) ════
+// En producción estos fetch apuntan a http://localhost:8080/api/...
+// Para la demo embebida, operamos sobre arrays locales en memoria.
+
+function apiGet(endpoint) {
+  if (endpoint === 'vehiculos') return Promise.resolve([...vehiculos]);
+  if (endpoint === 'ordenes')   return Promise.resolve([...ordenes]);
+  if (endpoint === 'estadisticas') return Promise.resolve({
+    totalVehiculos: vehiculos.length,
+    totalOrdenes: ordenes.length,
+    ingresos: ordenes.filter(o=>o.estado==='CERRADA').reduce((s,o)=>s+o.costoTotal,0),
+    colaEspera: vehiculos.filter(v=>v.estado==='EN_ESPERA').length
+  });
+}
+
+let _oid = 1;
+function nextOrdenId() { return 'ORD-' + String(_oid++).padStart(4,'0'); }
+let _vid = 100;
+function nextVid() { return 'V-' + String(_vid++); }
+
+// ═══ NAVEGACIÓN ════════════════════════════════════════════════
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('page-'+el.dataset.page).classList.add('active');
+    if (el.dataset.page === 'dashboard') loadDashboard();
+    if (el.dataset.page === 'vehiculos') renderVehiculos();
+    if (el.dataset.page === 'ordenes')   renderOrdenes();
+    if (el.dataset.page === 'cola')      renderCola();
+  });
+});
+
+// ═══ DASHBOARD ═════════════════════════════════════════════════
+async function loadDashboard() {
+  const s = await apiGet('estadisticas');
+  document.getElementById('st-vehiculos').textContent = s.totalVehiculos;
+  document.getElementById('st-ordenes').textContent   = s.totalOrdenes;
+  document.getElementById('st-cola').textContent      = s.colaEspera;
+  document.getElementById('st-ingresos').textContent  = '$' + s.ingresos.toLocaleString('es-CO');
+
+  const vlist = await apiGet('vehiculos');
+  const dash_v = document.getElementById('dash-vehiculos-tbody');
+  dash_v.innerHTML = vlist.slice(-5).reverse().map(v => `
+    <tr>
+      <td>${v.placa}</td>
+      <td><span class="badge badge-${v.tipo.toLowerCase()}">${v.tipo}</span></td>
+      <td>${v.propietario}</td>
+      <td>${badgeEstado(v.estado)}</td>
+    </tr>`).join('') || emptyRow(4);
+
+  const olist = await apiGet('ordenes');
+  const dash_o = document.getElementById('dash-ordenes-tbody');
+  dash_o.innerHTML = olist.slice(-5).reverse().map(o => `
+    <tr>
+      <td style="font-family:monospace;font-size:12px">${o.idOrden}</td>
+      <td>${o.placa}</td>
+      <td>${o.mecanico}</td>
+      <td>${badgeOrden(o.estado)}</td>
+    </tr>`).join('') || emptyRow(4);
+}
+
+// ═══ VEHÍCULOS ═════════════════════════════════════════════════
+async function renderVehiculos() {
+  const q   = (document.getElementById('search-vehiculos').value||'').toLowerCase();
+  const ft  = document.getElementById('filter-tipo').value;
+  const fe  = document.getElementById('filter-estado').value;
+  let list  = await apiGet('vehiculos');
+
+  if (q)  list = list.filter(v =>
+    v.placa.toLowerCase().includes(q) ||
+    v.marca.toLowerCase().includes(q) ||
+    v.propietario.toLowerCase().includes(q) ||
+    (v.modelo||'').toLowerCase().includes(q));
+  if (ft) list = list.filter(v => v.tipo === ft);
+  if (fe) list = list.filter(v => v.estado === fe);
+
+  const tbody = document.getElementById('vehiculos-tbody');
+  tbody.innerHTML = list.map(v => `
+    <tr>
+      <td><strong>${v.placa}</strong></td>
+      <td><span class="badge badge-${v.tipo.toLowerCase()}">${v.tipo}</span></td>
+      <td>${v.marca} ${v.modelo}</td>
+      <td>${v.anio}</td>
+      <td>${v.propietario}</td>
+      <td>${v.telefono}</td>
+      <td>${badgeEstado(v.estado)}</td>
+      <td>
+        <div class="td-actions">
+          <button class="btn btn-ghost btn-sm" onclick="abrirEditVehiculo('${v.placa}')">✏ Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="eliminarVehiculo('${v.placa}')">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🚘</div><div class="empty-text">Sin vehículos registrados</div></div></td></tr>`;
+}
+
+function guardarVehiculo() {
+  const tipo  = document.getElementById('v-tipo').value;
+  const placa = document.getElementById('v-placa').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const marca = document.getElementById('v-marca').value.trim();
+  const modelo= document.getElementById('v-modelo').value.trim();
+  const ano  = parseInt(document.getElementById('v-anio').value);
+  const color = document.getElementById('v-color').value.trim();
+  const prop  = document.getElementById('v-propietario').value.trim();
+  const tel   = document.getElementById('v-telefono').value.trim().replace(/\D/g,'');
+
+  // Validaciones
+  if (tipo === 'moto') {
+    if (!/^[A-Z]{3}[0-9]{2}[A-I]$/.test(placa)) { toast('Placa de moto inválida. Formato: ABC12D (última letra A–I)','err'); return; }
+  } else {
+    if (!/^[A-Z]{3}[0-9]{3}$/.test(placa))      { toast('Placa inválida. Formato: ABC123','err'); return; }
+  }
+  if (!marca)                                   { toast('Ingrese la marca','err'); return; }
+  if (!modelo)                                  { toast('Ingrese el modelo','err'); return; }
+  if (ano < 1950 || ano > 2026)               { toast('Año inválido','err'); return; }
+  if (!prop || prop.length < 3)                 { toast('Ingrese el nombre del propietario','err'); return; }
+  const telNum = parseInt(tel);
+  if (!/^\d{10}$/.test(tel) || telNum < 3000000000 || telNum > 3500000000) { toast('Teléfono inválido. El telefono debe estar en formato Colombiano \n3XX XXX XXXX','err'); return; }
+  if (vehiculos.find(v=>v.placa===placa))        { toast('Placa ya registrada','err'); return; }
+
+  let extra = {};
+  if (tipo === 'moto') {
+    const cc = parseInt(document.getElementById('v-cilindraje').value)||0;
+    if (cc < 50 || cc > 2000) { toast('Cilindraje inválido (50-2000 cc)','err'); return; }
+    extra = { cilindraje: cc, tipoMoto: document.getElementById('v-tipomoto').value };
+  } else if (tipo === 'camioneta') {
+    extra = { carga: parseFloat(document.getElementById('v-carga').value)||1, traccion4x4: document.getElementById('v-traccion').value==='true' };
+  } else {
+    extra = { puertas: parseInt(document.getElementById('v-puertas').value), transmision: document.getElementById('v-transmision').value };
+  }
+
+  const costoBase = tipo==='carro'?80000:tipo==='moto'?45000:120000;
+  vehiculos.push({ id: nextVid(), placa, tipo: tipo.charAt(0).toUpperCase()+tipo.slice(1), marca, modelo, ano, color, propietario: prop, telefono: tel, estado: 'EN_ESPERA', costoBase, ...extra });
+  closeModal('modal-vehiculo');
+  limpiarFormVehiculo();
+  renderVehiculos();
+  loadDashboard();
+  toast('Vehículo registrado ✓','ok');
+}
+
+function abrirEditVehiculo(placa) {
+  const v = vehiculos.find(x=>x.placa===placa);
+  if (!v) return;
+  document.getElementById('ev-placa').value       = v.placa;
+  document.getElementById('ev-propietario').value = v.propietario;
+  document.getElementById('ev-telefono').value    = v.telefono;
+  document.getElementById('ev-estado').value      = v.estado;
+  openModal('modal-edit-vehiculo');
+}
+
+function actualizarVehiculo() {
+  const placa = document.getElementById('ev-placa').value;
+  const prop  = document.getElementById('ev-propietario').value.trim();
+  const tel   = document.getElementById('ev-telefono').value.trim().replace(/\D/g,'');
+  const estado= document.getElementById('ev-estado').value;
+  if (!prop || prop.length < 3)   { toast('Propietario requerido','err'); return; }
+  const telNum = parseInt(tel);
+  if (!/^\d{10}$/.test(tel) || telNum < 3000000000 || telNum > 3500000000) { toast('Teléfono inválido. El telefono debe estar en formato Colombiano \n3XX XXX XXXX','err'); return; }
+  const v = vehiculos.find(x=>x.placa===placa);
+  if (!v) return;
+  v.propietario = prop; v.telefono = tel; v.estado = estado;
+  closeModal('modal-edit-vehiculo');
+  renderVehiculos(); loadDashboard(); renderCola();
+  toast('Vehículo actualizado ✓','ok');
+}
+
+function eliminarVehiculo(placa) {
+  if (!confirm(`¿Eliminar el vehículo con placa ${placa}?`)) return;
+  vehiculos = vehiculos.filter(v=>v.placa!==placa);
+  renderVehiculos(); loadDashboard(); renderCola();
+  toast('Vehículo eliminado','ok');
+}
+
+function limpiarFormVehiculo() {
+  ['v-placa','v-marca','v-modelo','v-anio','v-color','v-propietario','v-telefono','v-cilindraje','v-carga'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+}
+
+function toggleTipoFields() {
+  const tipo = document.getElementById('v-tipo').value;
+  document.querySelectorAll('.tipo-fields').forEach(el=>el.classList.remove('visible'));
+  document.querySelectorAll('.'+tipo+'-fields').forEach(el=>el.classList.add('visible'));
+}
+
+// ═══ ÓRDENES ═══════════════════════════════════════════════════
+async function renderOrdenes() {
+  const q    = (document.getElementById('search-ordenes').value||'').toLowerCase();
+  let list   = await apiGet('ordenes');
+  if (q) list = list.filter(o =>
+    o.idOrden.toLowerCase().includes(q) ||
+    o.placa.toLowerCase().includes(q) ||
+    o.mecanico.toLowerCase().includes(q));
+
+  const tbody = document.getElementById('ordenes-tbody');
+  tbody.innerHTML = list.map(o => `
+    <tr>
+      <td style="font-family:monospace;font-size:12px">${o.idOrden}</td>
+      <td><strong>${o.placa}</strong></td>
+      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.descripcion}</td>
+      <td>${o.mecanico}</td>
+      <td>$${(o.costoTotal||0).toLocaleString('es-CO')}</td>
+      <td>${badgeOrden(o.estado)}</td>
+      <td>
+        <div class="td-actions">
+          ${o.estado==='ABIERTA'?`<button class="btn btn-success btn-sm" onclick="cerrarOrden('${o.idOrden}')">✔ Cerrar</button>`:''}
+          <button class="btn btn-danger btn-sm" onclick="eliminarOrden('${o.idOrden}')">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="7"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Sin órdenes registradas</div></div></td></tr>`;
+}
+
+function guardarOrden() {
+  const placa    = document.getElementById('o-placa').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const mecanico = document.getElementById('o-mecanico').value.trim();
+  const problema = document.getElementById('o-problema').value.trim();
+  const serviciosRaw = document.getElementById('o-servicios').value.trim();
+
+  if (!/^[A-Z]{3}[0-9]{3}$/.test(placa))     { toast('Placa inválida. Formato: ABC123','err'); return; }
+  if (!mecanico || mecanico.length < 2)        { toast('Ingrese el mecánico asignado','err'); return; }
+  if (!problema || problema.length < 5)        { toast('Describa el problema (min. 5 caracteres)','err'); return; }
+  if (!vehiculos.find(v=>v.placa===placa))     { toast('Vehículo con esa placa no registrado','err'); return; }
+
+  let costo = 0;
+  const servicios = [];
+  if (serviciosRaw) {
+    serviciosRaw.split(',').forEach(s => {
+      const parts = s.trim().split(':');
+      if (parts.length === 2) {
+        const c = parseFloat(parts[1].trim())||0;
+        costo += c;
+        servicios.push(parts[0].trim());
+      }
+    });
+  }
+
+  const o = { idOrden: nextOrdenId(), placa, descripcion: problema, mecanico, costoTotal: costo, estado: 'ABIERTA', servicios, fechaIngreso: new Date().toLocaleDateString('es-CO') };
+  ordenes.push(o);
+
+  // Actualizar estado vehículo
+  const v = vehiculos.find(x=>x.placa===placa);
+  if (v) v.estado = 'EN_REVISION';
+
+  closeModal('modal-orden');
+  document.getElementById('o-placa').value = '';
+  document.getElementById('o-mecanico').value = '';
+  document.getElementById('o-problema').value = '';
+  document.getElementById('o-servicios').value = '';
+  renderOrdenes(); renderVehiculos(); loadDashboard();
+  toast('Orden creada ✓','ok');
+}
+
+function cerrarOrden(id) {
+  const o = ordenes.find(x=>x.idOrden===id);
+  if (!o) return;
+  o.estado = 'CERRADA';
+  const v = vehiculos.find(x=>x.placa===o.placa);
+  if (v) v.estado = 'LISTO';
+  renderOrdenes(); renderVehiculos(); loadDashboard();
+  toast('Orden cerrada ✓','ok');
+}
+
+function eliminarOrden(id) {
+  if (!confirm('¿Eliminar esta orden?')) return;
+  ordenes = ordenes.filter(o=>o.idOrden!==id);
+  renderOrdenes(); loadDashboard();
+  toast('Orden eliminada','ok');
+}
+
+// ═══ COLA DE ESPERA ════════════════════════════════════════════
+async function renderCola() {
+  const enEspera = vehiculos.filter(v=>v.estado==='EN_ESPERA');
+  const container = document.getElementById('cola-container');
+  if (!enEspera.length) {
+    container.innerHTML = `<div class="empty" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-top:12px"><div class="empty-icon">✅</div><div class="empty-text">No hay vehículos en espera</div></div>`;
+    return;
+  }
+  container.innerHTML = enEspera.map((v, i) => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 22px;display:flex;align-items:center;gap:18px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.3);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Syne',sans-serif;color:var(--accent);flex-shrink:0">${i+1}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:15px">${v.placa} — ${v.marca} ${v.modelo} <span class="badge badge-${v.tipo.toLowerCase()}" style="margin-left:6px">${v.tipo}</span></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:3px">Propietario: ${v.propietario} · ${v.telefono} · Año: ${v.anio}</div>
+      </div>
+      ${i===0?`<button class="btn btn-primary btn-sm" onclick="atenderSiguiente()">▶ Atender</button>`:''}
+    </div>`).join('');
+}
+
+function atenderSiguiente() {
+  const v = vehiculos.find(x=>x.estado==='EN_ESPERA');
+  if (!v) return;
+  v.estado = 'EN_REVISION';
+  renderCola(); renderVehiculos(); loadDashboard();
+  toast(`${v.placa} pasa a revisión ✓`, 'ok');
+}
+
+// ═══ HELPERS ═══════════════════════════════════════════════════
+function badgeEstado(e) {
+  const map = { EN_ESPERA:'espera', EN_REVISION:'revision', EN_REPARACION:'reparacion', LISTO:'listo', ENTREGADO:'entregado' };
+  const label = e.replace('_',' ');
+  return `<span class="badge badge-${map[e]||'espera'}">${label}</span>`;
+}
+function badgeOrden(e) {
+  return `<span class="badge badge-${e.toLowerCase()}">${e}</span>`;
+}
+function emptyRow(cols) {
+  return `<tr><td colspan="${cols}" style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Sin registros</td></tr>`;
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function toast(msg, type='ok') {
+  const div = document.createElement('div');
+  div.className = `toast ${type}`;
+  div.textContent = (type==='ok'?'✔ ':' ✕ ') + msg;
+  document.getElementById('toasts').appendChild(div);
+  setTimeout(()=>div.remove(), 3500);
+}
+
+// ═══ DATOS BASE ════════════════════════════════════════════════
+(function seedData() {
+  vehiculos = [
+    { id:'V-001', placa:'FPR625', tipo:'Carro', marca:'Renault', modelo:'Sandero', anio:2019, color:'Azul', propietario:'Javier Castro', telefono:'3001234567', estado:'EN_REVISION', costoBase:540000 },
+    { id:'V-002', placa:'AUM95D', tipo:'Moto',  marca:'Pulsar',  modelo:'Ns',   anio:2014, color:'Amarillo',   propietario:'Sebastian Quintero',   telefono:'3143336407', estado:'LISTO',       costoBase:480000 },
+    { id:'V-003', placa:'SYS204', tipo:'Camioneta', marca:'Iveco', modelo:'Dx', anio:2004, color:'Blanco', propietario:'Leo Cubillos', telefono:'3157050265', estado:'EN_ESPERA', costoBase:120000 },
+    { id:'V-004', placa:'GHI321', tipo:'Carro', marca:'Mazda', modelo:'3', anio:2022, color:'Azul', propietario:'Sara Moreno', telefono:'3104561234', estado:'EN_ESPERA', costoBase:80000 },
+  ];
+  ordenes = [
+    { idOrden:'ORD-0001', placa:'SRT145', descripcion:'Cambio de catalizador', mecanico:'Armando Fandiño', costoTotal:740000, estado:'ABIERTA', fechaIngreso:new Date().toLocaleDateString('es-CO') },
+    { idOrden:'ORD-0002', placa:'CLU549', descripcion:'Flowmaster y Puntera de lujo', mecanico:'Helen Beltran', costoTotal:890000, estado:'CERRADA', fechaIngreso:new Date().toLocaleDateString('es-CO') },
+  ];
+  _oid = 3;
+  loadDashboard();
+})();
+</script>
+</body>
+</html>
